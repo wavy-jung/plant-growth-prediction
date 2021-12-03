@@ -1,0 +1,10 @@
+/data
+**/.*
+**/__pycache__
+*.pyc
+**/exp
+*.ts
+*.pt
+*.png
+*.csv
+!.gitignore
