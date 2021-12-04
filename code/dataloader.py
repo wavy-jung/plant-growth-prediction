@@ -72,50 +72,6 @@ def get_dataset(root_path="../data/train_dataset/"):
     return df
 
 
-# def make_dataframe(root_path=None):
-#     bc_image_path, lt_image_path = make_image_path_array(root_path)
-#     bc_day_array = make_day_array(bc_image_path)
-#     lt_day_array = make_day_array(lt_image_path)
-
-#     bc_df = pd.DataFrame({'file_name': bc_image_path,
-#                           'day': bc_day_array})
-#     bc_df['species'] = 'bc'
-
-#     lt_df = pd.DataFrame({'file_name': lt_image_path,
-#                           'day': lt_day_array})
-#     lt_df['species'] = 'lt'
-
-#     total_data_frame = pd.concat([bc_df, lt_df]).reset_index(drop=True)
-
-#     return total_data_frame
-
-
-# def make_combination(length, species, data_frame):
-#     before_file_path = []
-#     after_file_path = []
-#     time_delta = []
-
-#     for i in range(length):
-#         sample = data_frame[data_frame['species'] == species].sample(2)
-#         after = sample[sample['day'] == max(sample['day'])].reset_index(drop=True)
-#         before = sample[sample['day'] == min(sample['day'])].reset_index(drop=True)
-
-#         before_file_path.append(before.iloc[0]['file_name'])
-#         after_file_path.append(after.iloc[0]['file_name'])
-#         delta = int(after.iloc[0]['day'] - before.iloc[0]['day'])
-#         time_delta.append(delta)
-
-#     combination_df = pd.DataFrame({
-#         'before_file_path': before_file_path,
-#         'after_file_path': after_file_path,
-#         'time_delta': time_delta,
-#     })
-
-#     combination_df['species'] = species
-
-#     return combination_df
-
-
 class KistDataset(Dataset):
     def __init__(self, combination_df, is_test= None):
         self.combination_df = combination_df
