@@ -96,11 +96,18 @@ for epoch in tqdm(range(epochs)):
 
     torch.save(checkpoiont, 'checkpoiont_128.pt')
 
+def main(args):
+    train(args)
+
 
 if __name__ == "__main__":
-    seed_everything(2048)
+    # seed_everything(2048)
 
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--lr', type=float, default=1e-5, help='sum the integers (default: find the max)')
-
+    parser.add_argument('--lr', type=float, default=1e-5, help='initial learning rate')
+    parser.add_argument('--epochs', type=int, default=10, help="num epochs for training")
+    parser.add_argument('--batch_size', type=int, default=64, help="batch size")
+    parser.add_argument('--valid_batch_size', type=int, default=50, help="batch size vaildation")
+    parser.add_argument('--seed', type=int, default=2048), help="set random seed")
     args = parser.parse_args()
+    main(args)
