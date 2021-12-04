@@ -5,7 +5,6 @@ import os
 
 import pandas as pd
 import numpy as np
-# import transformers
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
@@ -80,17 +79,17 @@ class KistDataset(Dataset):
             transforms.ToTensor()
         ])
         self.is_test = is_test
-        # self.images = 
+        self.before_image = [Image.open(before_path) for before_path in list(self.combination_df['before_file_path'])]
+        self.after_image = [Image.open(after_path) for after_path in list(self.combination_df['after_file_path'])]
+        self.time_delta = list(self.combination_df['time_delta'])
+
 
     def __getitem__(self, idx):
-        before_image = Image.open(self.combination_df.iloc[idx]['before_file_path'])
-        after_image = Image.open(self.combination_df.iloc[idx]['after_file_path'])
-
-        before_image = self.transform(before_image)
-        after_image = self.transform(after_image)
+        before_image = self.transform(self.before_image[idx])
+        after_image = self.transform(self.after_image[idx])
         if self.is_test:
             return before_image, after_image
-        time_delta = self.combination_df.iloc[idx]['time_delta']
+        time_delta = self.time_delta[idx]
         return before_image, after_image, time_delta
 
     def __len__(self):
