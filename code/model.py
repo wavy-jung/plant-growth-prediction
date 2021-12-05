@@ -12,15 +12,17 @@ PRETRAINED = resnet18(pretrained=True)
 
 class ImageModel(nn.Module):
     def __init__(self, pretrained=PRETRAINED):
-        super(ResNet18, self).__init__()
+        super(ImageModel, self).__init__()
         self.pretrained = pretrained
         self.dropout = nn.Dropout(p=0.3)
-        self.fc = nn.Linear(1000, 128)
+        self.fc1 = nn.Linear(1000, 128)
+        self.fc2 = nn.Linear(128, 1)
 
     def forward(self, x):
         out = self.pretrained(x)
         out = self.dropout(out)
-        out = self.fc(out)
+        out = self.fc1(out)
+        out = self.fc2(out)
         return out
 
 
@@ -34,7 +36,7 @@ class CompareNet(nn.Module):
     def forward(self, before_input, after_input):
         before = self.before_net(before_input) 
         after = self.after_net(after_input)
-        out = self.cosine(before, after)
+        out = after - before
         return out
 
 

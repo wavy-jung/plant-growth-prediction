@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import numpy as np
 from PIL import Image
+import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 from torchvision import transforms
@@ -75,22 +76,23 @@ class KistDataset(Dataset):
     def __init__(self, combination_df, is_test= None):
         self.combination_df = combination_df
         self.transform = transforms.Compose([
-            transforms.Resize(224),
+            transforms.Resize((224, 224)),
             transforms.ToTensor()
         ])
         self.is_test = is_test
-        self.before_image = [Image.open(before_path) for before_path in list(self.combination_df['before_file_path'])]
-        self.after_image = [Image.open(after_path) for after_path in list(self.combination_df['after_file_path'])]
-        self.time_delta = list(self.combination_df['time_delta'])
+        self.before_image = [self.transform(Image.open(before_path)) for before_path in tqdm(list(self.combination_df['before_file_path']))]
+        self.after_image = [self.transform(Image.open(after_path)) for after_path in tqdm(list(self.combination_df['after_file_path']))]
+        if not self.is_test:    
+            self.time_delta = list(self.combination_df['time_delta'])
 
 
     def __getitem__(self, idx):
-        before_image = self.transform(self.before_image[idx])
-        after_image = self.transform(self.after_image[idx])
+        before_image = self.before_image[idx]
+        after_image = self.after_image[idx]
         if self.is_test:
             return before_image, after_image
         time_delta = self.time_delta[idx]
-        return before_image, after_image, time_delta
+        return before_image, after_image, torch.tensor(time_delta)
 
     def __len__(self):
         return len(self.combination_df)
