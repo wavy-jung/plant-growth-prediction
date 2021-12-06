@@ -68,7 +68,7 @@ def train(args):
             optimizer.zero_grad()
             logit = model(before_image, after_image)
             # train_loss = loss_fn(logit.float(), time_delta.float())
-            train_loss = (torch.sum(torch.abs(logit.squeeze(1).float() - time_delta.float())) /
+            train_loss = (torch.sum(torch.square(logit.squeeze(1).float() - time_delta.float())) /
                       torch.LongTensor([args.batch_size]).squeeze(0).to(device))
             train_loss.backward()
             train_losses.append(train_loss.detach().cpu())
@@ -89,7 +89,7 @@ def train(args):
 
                 logit = model(valid_before, valid_after)
                 # valid_loss = loss_fn(logit.float(), valid_time_delta.float())
-                valid_loss = (torch.sum(torch.abs(logit.squeeze(1).float() - valid_time_delta.float())) /
+                valid_loss = (torch.sum(torch.square(logit.squeeze(1).float() - valid_time_delta.float())) /
                           torch.LongTensor([args.batch_size]).squeeze(0).to(device))
                 valid_losses.append(valid_loss.detach().cpu())
 
@@ -104,8 +104,10 @@ def train(args):
                 remove = glob(os.path.join(MODEL_SAVE_DIR, "*"))
                 for path in remove:
                     if path.split(".")[-1] == "pt":
+                        print("Deleting Old Model")
                         os.remove(path)
                 torch.save(checkpoint, os.path.join(MODEL_SAVE_DIR, f'checkpoint-{ckpt}.pt'))
+                print("New Model Saved")
         except:
             pass
             # if len(valid_losses_avg) == 0:

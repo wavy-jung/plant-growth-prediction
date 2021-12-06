@@ -31,7 +31,6 @@ class CompareNet(nn.Module):
         super(CompareNet, self).__init__()
         self.before_net = ImageModel()
         self.after_net = ImageModel()
-        self.cosine = nn.CosineSimilarity(dim=1)
 
     def forward(self, before_input, after_input):
         before = self.before_net(before_input) 

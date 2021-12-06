@@ -8,7 +8,7 @@ from model import CompareNet
 
 TEST_PATH = "../data/test_dataset/"
 model = CompareNet()
-checkpoint = torch.load("./exp/checkpoint-5490.pt")
+checkpoint = torch.load("./exp/checkpoint-4944.pt")
 model.load_state_dict(checkpoint['model'])
 test_set = pd.read_csv(os.path.join(TEST_PATH, 'test_data.csv'))
 submission = pd.read_csv(os.path.join(TEST_PATH, 'test_data.csv'))
@@ -35,8 +35,9 @@ with torch.no_grad():
         # value = logit.squeeze(1).detach().cpu().float()
         value = logit.detach().cpu().float()
         
-        test_value.extend([int(float(v)) for v in value])
+        test_value.extend([float(v) for v in value])
 
+test_value = [v if v >= 0 else 1 for v in test_value]
 submission['time_delta'] = test_value
 new_sub = pd.DataFrame({
     "idx" : submission['idx'],
