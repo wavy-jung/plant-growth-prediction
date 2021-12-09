@@ -1,46 +1,69 @@
 import torch
 from torch.utils.data import DataLoader
 import pandas as pd
+import numpy as np
 from tqdm.auto import tqdm
 from dataloader import KistDataset
 import os
 from model import CompareNet
+import argparse
 
-TEST_PATH = "../data/test_dataset/"
-model = CompareNet()
-checkpoint = torch.load("./exp/checkpoint-4944.pt")
-model.load_state_dict(checkpoint['model'])
-test_set = pd.read_csv(os.path.join(TEST_PATH, 'test_data.csv'))
-submission = pd.read_csv(os.path.join(TEST_PATH, 'test_data.csv'))
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-model = model.to(device)
 
-test_set['l_root'] = test_set['before_file_path'].map(lambda x: TEST_PATH + x.split('_')[1] + '/' + x.split('_')[2])
-test_set['r_root'] = test_set['after_file_path'].map(lambda x: TEST_PATH + x.split('_')[1] + '/' + x.split('_')[2])
-test_set['l_path'] = test_set['l_root'] + '/' + test_set['before_file_path'] + '.png'
-test_set['r_path'] = test_set['r_root'] + '/' + test_set['after_file_path'] + '.png'
-test_set['before_file_path'] = test_set['l_path']
-test_set['after_file_path'] = test_set['r_path']
-test_dataset = KistDataset(test_set, is_test=True)
-test_data_loader = DataLoader(test_dataset,
-                               batch_size=64,
-                               shuffle=False)
-test_value = []
-with torch.no_grad():
-    model.eval()
-    for test_before, test_after in tqdm(test_data_loader):
-        test_before = test_before.to(device)
-        test_after = test_after.to(device)
-        logit = model(test_before, test_after)
-        # value = logit.squeeze(1).detach().cpu().float()
-        value = logit.detach().cpu().float()
-        
-        test_value.extend([float(v) for v in value])
+def main(args):
+    TEST_PATH = "../data/test_dataset/"
+    MODEL_PATH = os.path.join("./exp/", args.model_name)
+    assert os.path.exists(MODEL_PATH), "Wrong Model Path"
+    assert args.submission_file.split(".")[-1] == "csv", "Wrong Output File Name"
 
-test_value = [v if v >= 0 else 1 for v in test_value]
-submission['time_delta'] = test_value
-new_sub = pd.DataFrame({
-    "idx" : submission['idx'],
-    "time_delta" : test_value
-})
-new_sub.to_csv("./submission.csv", index=False)
+    # Load Model
+    model = CompareNet()
+    checkpoint = torch.load(MODEL_PATH)
+    model.load_state_dict(checkpoint['model'])
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
+
+    # Make Inference Data
+    test_set = pd.read_csv(os.path.join(TEST_PATH, 'test_data.csv'))
+    submission = pd.read_csv(os.path.join(TEST_PATH, 'test_data.csv'))
+
+    test_set['l_root'] = test_set['before_file_path'].map(lambda x: TEST_PATH + x.split('_')[1] + '/' + x.split('_')[2])
+    test_set['r_root'] = test_set['after_file_path'].map(lambda x: TEST_PATH + x.split('_')[1] + '/' + x.split('_')[2])
+    test_set['l_path'] = test_set['l_root'] + '/' + test_set['before_file_path'] + '.png'
+    test_set['r_path'] = test_set['r_root'] + '/' + test_set['after_file_path'] + '.png'
+    test_set['before_file_path'] = test_set['l_path']
+    test_set['after_file_path'] = test_set['r_path']
+    test_dataset = KistDataset(test_set, is_test=True)
+    test_data_loader = DataLoader(test_dataset,
+                                batch_size=64,
+                                shuffle=False)
+    test_value = []
+    with torch.no_grad():
+        model.eval()
+        for test_before, test_after in tqdm(test_data_loader):
+            test_before = test_before.to(device)
+            test_after = test_after.to(device)
+            logit = model(test_before, test_after)
+            value = logit.squeeze(1).detach().cpu().float()
+
+            test_value.extend(value)
+
+    torch_label = torch.FloatTensor(test_value)
+
+    np_label = torch_label.numpy()
+    np_label[np.where(np_label<1)] = 1
+
+    int_label = [round(n) for n in np_label]
+
+    new_sub = pd.DataFrame({
+        "idx" : submission['idx'],
+        "time_delta" : int_label
+    })
+    new_sub.to_csv(args.submission_file, index=False)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="inference setter")
+    parser.add_argument("--model_name", type=str, default=None)
+    parser.add_argument("--submission_file", type=str, default="./submission.csv")
+    args = parser.parse_args()
+    main(args)

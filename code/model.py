@@ -1,41 +1,51 @@
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18
+from torchvision import models
+import timm
 
 from tqdm.auto import tqdm
 import pandas as pd
 import numpy as np
 import os
 
-PRETRAINED = resnet18(pretrained=True)
-
 
 class ImageModel(nn.Module):
-    def __init__(self, pretrained=PRETRAINED):
+
+    def __init__(
+        self,
+        dim_embedding=16,
+        pretrained='regnetx_004'
+        ):
         super(ImageModel, self).__init__()
-        self.pretrained = pretrained
-        self.dropout = nn.Dropout(p=0.3)
-        self.fc1 = nn.Linear(1000, 128)
-        self.fc2 = nn.Linear(128, 1)
+        self.pretrained = timm.create_model(pretrained, pretrained=True, num_classes=dim_embedding)
+        self.dim_embedding = dim_embedding
+
 
     def forward(self, x):
         out = self.pretrained(x)
-        out = self.dropout(out)
-        out = self.fc1(out)
-        out = self.fc2(out)
         return out
 
 
+
 class CompareNet(nn.Module):
-    def __init__(self):
+
+    def __init__(
+        self,
+        dim_embedding=16,
+        model_name='regnetx_004'
+        ):
         super(CompareNet, self).__init__()
-        self.before_net = ImageModel()
-        self.after_net = ImageModel()
+        self.before_net = ImageModel(dim_embedding=dim_embedding, pretrained=model_name)
+        self.after_net = ImageModel(dim_embedding=dim_embedding, pretrained=model_name)
+        self.num_input = 2*dim_embedding
+        self.fc = nn.Linear(self.num_input, 1)
+
 
     def forward(self, before_input, after_input):
         before = self.before_net(before_input) 
         after = self.after_net(after_input)
-        out = after - before
+        out = torch.cat((before, after), dim=-1)
+        out = self.fc(out)
         return out
 
 

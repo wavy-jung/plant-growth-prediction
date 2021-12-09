@@ -29,6 +29,7 @@ def train(args):
     model = CompareNet().to(device)
 
     total_dataframe = pd.read_csv("./train_dataset.csv")
+    print(f"Length of Total Data : {len(total_dataframe)}")
 
     train_set, valid_set = train_test_split(
         total_dataframe,
@@ -53,13 +54,13 @@ def train(args):
                                 batch_size=args.batch_size,
                                 shuffle=False)
 
-    # loss_fn = nn.MAELoss()
     train_losses_avg = []
     valid_losses_avg = []
     for epoch in tqdm(range(args.epochs)):
         save_model = False
         train_losses = []
         model.train()
+        print(f'\n===================EPOCH: {epoch+1}/{args.epochs}=====================')
         for before_image, after_image, time_delta in tqdm(train_data_loader, desc="Training"):
             before_image = before_image.to(device)
             after_image = after_image.to(device)
@@ -67,17 +68,15 @@ def train(args):
 
             optimizer.zero_grad()
             logit = model(before_image, after_image)
-            # train_loss = loss_fn(logit.float(), time_delta.float())
-            train_loss = (torch.sum(torch.square(logit.squeeze(1).float() - time_delta.float())) /
+            train_loss = (torch.sum(torch.abs(logit.squeeze(1).float() - time_delta.float())) /
                       torch.LongTensor([args.batch_size]).squeeze(0).to(device))
             train_loss.backward()
             train_losses.append(train_loss.detach().cpu())
             optimizer.step()
         scheduler.step()
         train_losses_avg.append(float(sum(train_losses)/len(train_losses)))
-        print('\n=====================loss=======================')
-        print(f'\n===================EPOCH: {epoch+1}/{args.epochs}=====================')
-        print(f'MAE_loss : {train_losses_avg[-1]:.3f}')
+
+        print(f'TRAIN_MAE_loss : {train_losses_avg[-1]:.3f}')
 
         valid_losses = []
         with torch.no_grad():
@@ -88,8 +87,7 @@ def train(args):
                 valid_time_delta = time_delta.to(device)
 
                 logit = model(valid_before, valid_after)
-                # valid_loss = loss_fn(logit.float(), valid_time_delta.float())
-                valid_loss = (torch.sum(torch.square(logit.squeeze(1).float() - valid_time_delta.float())) /
+                valid_loss = (torch.sum(torch.abs(logit.squeeze(1).float() - valid_time_delta.float())) /
                           torch.LongTensor([args.batch_size]).squeeze(0).to(device))
                 valid_losses.append(valid_loss.detach().cpu())
 
@@ -100,12 +98,12 @@ def train(args):
                 checkpoint = {
                     'model': model.state_dict(),
                 }
-                ckpt = (epoch+1)*len(train_data_loader)
-                remove = glob(os.path.join(MODEL_SAVE_DIR, "*"))
-                for path in remove:
-                    if path.split(".")[-1] == "pt":
-                        print("Deleting Old Model")
-                        os.remove(path)
+                ckpt = epoch+1
+                # remove = glob(os.path.join(MODEL_SAVE_DIR, "*"))
+                # for path in remove:
+                #     if path.split(".")[-1] == "pt":
+                #         print("Deleting Old Model")
+                #         os.remove(path)
                 torch.save(checkpoint, os.path.join(MODEL_SAVE_DIR, f'checkpoint-{ckpt}.pt'))
                 print("New Model Saved")
         except:
