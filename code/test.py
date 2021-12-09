@@ -14,6 +14,7 @@ def main(args):
     MODEL_PATH = os.path.join("./exp/", args.model_name)
     assert os.path.exists(MODEL_PATH), "Wrong Model Path"
     assert args.submission_file.split(".")[-1] == "csv", "Wrong Output File Name"
+    assert args.label_type.lower() in ["int", "float"], "Choose Label Type : int or float"
 
     # Load Model
     model = CompareNet()
@@ -52,11 +53,14 @@ def main(args):
     np_label = torch_label.numpy()
     np_label[np.where(np_label<1)] = 1
 
-    int_label = [round(n) for n in np_label]
+    if args.label_type.lower() == "int":
+        label = [round(n) for n in np_label]
+    elif args.label_type.lower() == "float":
+        label = np_label
 
     new_sub = pd.DataFrame({
         "idx" : submission['idx'],
-        "time_delta" : int_label
+        "time_delta" : label
     })
     new_sub.to_csv(args.submission_file, index=False)
 
@@ -65,5 +69,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="inference setter")
     parser.add_argument("--model_name", type=str, default=None)
     parser.add_argument("--submission_file", type=str, default="./submission.csv")
+    parser.add_argument("--label_type", type=str, default="int")
     args = parser.parse_args()
     main(args)

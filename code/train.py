@@ -33,7 +33,7 @@ def train(args):
 
     train_set, valid_set = train_test_split(
         total_dataframe,
-        test_size=0.1,
+        test_size=0.2,
         stratify=total_dataframe['time_delta'],
         random_state=args.seed)
 
@@ -94,26 +94,20 @@ def train(args):
         valid_losses_avg.append(sum(valid_losses)/len(valid_losses))
         print(f'VALIDATION_LOSS MAE : {sum(valid_losses)/len(valid_losses):.3f}')
         try:
-            if min(valid_losses_avg[:-1]) > valid_losses_avg[-1]:
+            if min(valid_losses_avg[:-1]) > valid_losses_avg[-1] and epoch >= 3:
                 checkpoint = {
                     'model': model.state_dict(),
                 }
                 ckpt = epoch+1
-                # remove = glob(os.path.join(MODEL_SAVE_DIR, "*"))
-                # for path in remove:
-                #     if path.split(".")[-1] == "pt":
-                #         print("Deleting Old Model")
-                #         os.remove(path)
+                pt_list = glob(os.path.join(MODEL_SAVE_DIR, "*"))
+                pt_list = sorted([r for r in pt_list if r.split(".")[-1]=="pt"], key=lambda x: int(x.split("-")[-1].split(".")[0]))
+                if len(pt_list) == 5:
+                    print("Deleting Old Model")
+                    os.remove(pt_list[-1])
                 torch.save(checkpoint, os.path.join(MODEL_SAVE_DIR, f'checkpoint-{ckpt}.pt'))
                 print("New Model Saved")
         except:
             pass
-            # if len(valid_losses_avg) == 0:
-            #     checkpoint = {
-            #         'model': model.state_dict(),
-            #     }
-            #     ckpt = (epoch+1)*len(train_data_loader)
-            #     torch.save(checkpoint, f'./exp/checkpoint-{ckpt}.pt')
 
 
 def main(args):

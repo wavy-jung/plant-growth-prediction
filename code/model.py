@@ -13,7 +13,7 @@ class ImageModel(nn.Module):
 
     def __init__(
         self,
-        dim_embedding=16,
+        dim_embedding=8,
         pretrained='regnetx_004'
         ):
         super(ImageModel, self).__init__()
@@ -31,7 +31,7 @@ class CompareNet(nn.Module):
 
     def __init__(
         self,
-        dim_embedding=16,
+        dim_embedding=8,
         model_name='regnetx_004'
         ):
         super(CompareNet, self).__init__()

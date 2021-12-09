@@ -5,11 +5,16 @@ import os
 
 import pandas as pd
 import numpy as np
+
 from PIL import Image
 import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 from torchvision import transforms
+
+import albumentations as A
+from albumentations.pytorch.transforms import ToTensorV2
+import cv2
 
 
 def extract_day(file_name):
@@ -75,14 +80,17 @@ def get_dataset(root_path="../data/train_dataset/"):
 class KistDataset(Dataset):
     def __init__(self, combination_df, is_test= None):
         self.combination_df = combination_df
-        self.transform = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        self.transform = A.Compose([
+            A.Resize(224, 224),
+            A.Normalize([0.5, 0.5, 0.5], [0.2, 0.5, 0.2]),
+            ToTensorV2(),
         ])
         self.is_test = is_test
-        self.before_image = [self.transform(Image.open(before_path)) for before_path in tqdm(list(self.combination_df['before_file_path']))]
-        self.after_image = [self.transform(Image.open(after_path)) for after_path in tqdm(list(self.combination_df['after_file_path']))]
+        
+        self.before_image = [cv2.cvtColor(cv2.imread(before_path), cv2.COLOR_BGR2RGB) for before_path in tqdm(list(self.combination_df['before_file_path']))]
+        self.after_image = [cv2.cvtColor(cv2.imread(after_path), cv2.COLOR_BGR2RGB) for after_path in tqdm(list(self.combination_df['after_file_path']))]
+        self.before_image = [self.transform(image=before_path)['image'] for before_path in tqdm(self.before_image)]
+        self.after_image = [self.transform(image=after_path)['image'] for after_path in tqdm(self.after_image)]
         if not self.is_test:    
             self.time_delta = list(self.combination_df['time_delta'])
 
@@ -95,8 +103,10 @@ class KistDataset(Dataset):
         time_delta = self.time_delta[idx]
         return before_image, after_image, torch.tensor(time_delta)
 
+
     def __len__(self):
         return len(self.combination_df)
+
 
 
 if __name__ == "__main__":
