@@ -1,4 +1,4 @@
 python train.py --lr 2e-5 \
-                --epochs 50 \
+                --epochs 20 \
                 --batch_size 64 \
-                --seed 19990417  
+                --seed 47 

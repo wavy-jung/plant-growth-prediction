@@ -11,7 +11,8 @@ import argparse
 
 def main(args):
     TEST_PATH = "../data/test_dataset/"
-    MODEL_PATH = os.path.join("./exp/", args.model_name)
+    # MODEL_PATH = os.path.join("./exp/", args.model_name)
+    MODEL_PATH = "/opt/ml/dacon_baesline/code/exp/2021-12-11-16:56/fold1/checkpoint-fold1-28.pt"
     assert os.path.exists(MODEL_PATH), "Wrong Model Path"
     assert args.submission_file.split(".")[-1] == "csv", "Wrong Output File Name"
     assert args.label_type.lower() in ["int", "float"], "Choose Label Type : int or float"
@@ -43,6 +44,7 @@ def main(args):
         for test_before, test_after in tqdm(test_data_loader):
             test_before = test_before.to(device)
             test_after = test_after.to(device)
+
             logit = model(test_before, test_after)
             value = logit.squeeze(1).detach().cpu().float()
 

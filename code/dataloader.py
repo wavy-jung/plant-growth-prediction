@@ -78,26 +78,36 @@ def get_dataset(root_path="../data/train_dataset/"):
 
 
 class KistDataset(Dataset):
-    def __init__(self, combination_df, is_test= None):
+
+    def __init__(self, combination_df, is_valid=None, is_test=None):
+
         self.combination_df = combination_df
+        self.is_valid = is_valid
+        self.is_test = is_test
+        self.rand_aug_factor = 0.5
+        if self.is_valid or self.is_test:
+            self.rand_aug_factor = 0
+
         self.transform = A.Compose([
             A.Resize(224, 224),
-            A.Normalize([0.5, 0.5, 0.5], [0.2, 0.5, 0.2]),
+            A.OneOf([A.HorizontalFlip(p=1),
+                     A.RandomRotate90(p=1),
+                     A.VerticalFlip(p=1)            
+            ], p=self.rand_aug_factor),
+            A.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
             ToTensorV2(),
         ])
-        self.is_test = is_test
         
         self.before_image = [cv2.cvtColor(cv2.imread(before_path), cv2.COLOR_BGR2RGB) for before_path in tqdm(list(self.combination_df['before_file_path']))]
         self.after_image = [cv2.cvtColor(cv2.imread(after_path), cv2.COLOR_BGR2RGB) for after_path in tqdm(list(self.combination_df['after_file_path']))]
-        self.before_image = [self.transform(image=before_path)['image'] for before_path in tqdm(self.before_image)]
-        self.after_image = [self.transform(image=after_path)['image'] for after_path in tqdm(self.after_image)]
+        
         if not self.is_test:    
             self.time_delta = list(self.combination_df['time_delta'])
 
 
     def __getitem__(self, idx):
-        before_image = self.before_image[idx]
-        after_image = self.after_image[idx]
+        before_image = self.transform(image=self.before_image[idx])['image']
+        after_image =self.transform(image=self.after_image[idx])['image']
         if self.is_test:
             return before_image, after_image
         time_delta = self.time_delta[idx]
