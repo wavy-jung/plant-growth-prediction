@@ -74,7 +74,7 @@ def main(args):
                                     batch_size=args.batch_size,
                                     shuffle=False)
 
-        model = CompareNet().to(device)
+        model = CompareNet(model_name=args.pretrained).to(device)
         wandb.init(
             project="plant-growth",
             group=time_exp,
@@ -155,6 +155,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--pretrained', type=str, default='regnetx_016', help='pretrained model selection')
     parser.add_argument('--lr', type=float, default=2e-5, help='initial learning rate')
     parser.add_argument('--epochs', type=int, default=30, help="num epochs for training")
     parser.add_argument('--batch_size', type=int, default=64, help="batch size")
