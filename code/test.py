@@ -99,6 +99,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="inference setter")
     parser.add_argument("--fold_path", type=str, default=None)
     parser.add_argument("--submission_file", type=str, default="./submission.csv")
-    parser.add_argument("--label_type", type=str, default="int")
+    parser.add_argument("--label_type", type=str, default="float")
     args = parser.parse_args()
     main(args)
