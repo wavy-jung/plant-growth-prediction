@@ -13,7 +13,7 @@ import argparse
 # Inference Part
 def inference(model, test_data_loader, device, idx):
     test_value = []
-    description = f"Fold-{idx+1}"
+    description = f"Fold-{idx}"
     with torch.no_grad():
         model.eval()
         for test_before, test_after in tqdm(test_data_loader, desc=description):
@@ -46,9 +46,13 @@ def get_kfold_model_path(fold_path):
 def main(args):
 
     TEST_PATH = "../data/test_dataset/"
-    FOLD_PATH = os.path.join("./exp/", args.fold_path) if os.path.isdir(os.path.join("./exp/", args.fold_path)) else args.fold_path
+    if args.inf_type.lower() == "fold":
+        FOLD_PATH = os.path.join("./exp/", args.fold_path) if os.path.isdir(os.path.join("./exp/", args.fold_path)) else args.fold_path
+        assert os.path.isdir(FOLD_PATH), "Wrong Model Path"
+    elif args.inf_type.lower() == "single":
+        SINGLE_PATH = args.single_path
+        assert os.path.exists(SINGLE_PATH), "Wrong Model Path"
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    assert os.path.isdir(FOLD_PATH), "Wrong Model Path"
     assert args.submission_file.split(".")[-1] == "csv", "Wrong Output File Name"
     assert args.label_type.lower() in ["int", "float"], "Choose Label Type : int or float"
 
@@ -67,19 +71,27 @@ def main(args):
                                 batch_size=64,
                                 shuffle=False)
 
-    # Get Fold Model Pathes
-    model_list = get_kfold_model_path(FOLD_PATH)
+    if args.inf_type.lower() == "fold":
+        # Get Fold Model Pathes
+        model_list = get_kfold_model_path(FOLD_PATH)
 
-    # Iteration : Model Load and Inference
-    sum_labels = np.zeros(len(test_set))
-    for idx, path in enumerate(model_list):
-        # Load Model
-        model = CompareNet()
-        checkpoint = torch.load(path)
+        # Iteration : Model Load and Inference
+        sum_labels = np.zeros(len(test_set))
+        for idx, path in enumerate(model_list):
+            # Load Model
+            model = CompareNet(model_name=args.pretrained)
+            checkpoint = torch.load(path)
+            model.load_state_dict(checkpoint['model'])
+            model = model.to(device)
+            sum_labels = sum_labels + inference(model, test_data_loader, device, idx)
+        mean_labels = sum_labels/len(model_list)
+    
+    elif args.inf_type.lower() == "single":
+        model = CompareNet(model_name=args.pretrained)
+        checkpoint = torch.load(SINGLE_PATH)
         model.load_state_dict(checkpoint['model'])
         model = model.to(device)
-        sum_labels = sum_labels + inference(model, test_data_loader, device, idx)
-    mean_labels = sum_labels/len(model_list)
+        mean_labels = inference(model, test_data_loader, device, "single")
 
     mean_labels[np.where(mean_labels<1)] = 1
 
@@ -98,7 +110,10 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="inference setter")
     parser.add_argument("--fold_path", type=str, default=None)
+    parser.add_argument("--pretrained", type=str, default="regnetx_016")
     parser.add_argument("--submission_file", type=str, default="./submission.csv")
     parser.add_argument("--label_type", type=str, default="float")
+    parser.add_argument("--inf_type", type=str, default="fold", help="fold or single")
+    parser.add_argument("--single_path", type=str, default=None, help="used when single inference")
     args = parser.parse_args()
     main(args)
