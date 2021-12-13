@@ -116,4 +116,5 @@ if __name__ == "__main__":
     parser.add_argument("--inf_type", type=str, default="fold", help="fold or single")
     parser.add_argument("--single_path", type=str, default=None, help="used when single inference")
     args = parser.parse_args()
+    print(args)
     main(args)
