@@ -31,6 +31,7 @@ def seed_everything(seed): # seed 고정
     random.seed(seed)
 
 
+# Create Directory to save models ex) 2021-12-12-4-2
 def create_dir(base_dir=MODEL_SAVE_DIR):
     now = time.localtime()
     path_name = f"{now.tm_year}-{now.tm_mon}-{now.tm_mday}-{now.tm_hour}-{now.tm_min}"
@@ -75,6 +76,8 @@ def main(args):
                                     shuffle=False)
 
         model = CompareNet(model_name=args.pretrained).to(device)
+
+        # wandb init -> project/group/{fold1, fold2, fold3, fold4, fold5}
         wandb.init(
             project="plant-growth",
             group=time_exp,
