@@ -1,7 +1,5 @@
-python test.py \
-    --fold_path 2021-12-12-15-21 \
-    --pretrained tf_efficientnet_b0_ns \
-    --submission_file tf_efficientnet_b0_ns_fold30.csv \
-    --label_type float \
-    --inf_type fold \
-    # --single_path ckpt
+python test.py --fold_path 2021-12-13-7-51 \
+                --pretrained regnetx_032 \
+                --submission_file regnetx_032_fold-2.csv \
+                --label_type float \
+                --inf_type single \
