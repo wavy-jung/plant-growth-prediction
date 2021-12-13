@@ -47,13 +47,15 @@ def main(args):
 
     base_path, time_exp = create_dir()
 
-    total_dataframe = pd.read_csv("./train_dataset.csv")
-    print(f"Length of Total Data : {len(total_dataframe)}")
-
     # K-Fold Cross Validation
     dataset = pd.read_csv("./train_dataset.csv")
-    kfold = KFold(n_splits=5, shuffle=True, random_state=args.seed)
+    if args.separate:
+        assert args.separate.lower() in ["bc", "lt"], "Wrong Plant Name"
+        dataset.loc[dataset.species == args.separate.lower()]
+        print(f"Plant Species : {args.separate.upper()}")
+    print(f"Length of Total Data : {len(dataset)}")
 
+    kfold = KFold(n_splits=5, shuffle=True, random_state=args.seed)
     for fold, (train_set, valid_set) in enumerate(kfold.split(dataset)):
 
         print("-"*100)
@@ -149,7 +151,8 @@ def main(args):
                     if len(pt_list) == 1:
                         print("Deleting Old Model")
                         os.remove(pt_list[-1])
-                    torch.save(checkpoint, os.path.join(fold_path, f'checkpoint-fold{fold+1}-{ckpt}.pt'))
+                    model_save_name = f'checkpoint-fold{fold+1}-{ckpt}.pt' if args.separate is None else f'{args.separate}-fold{fold+1}-{ckpt}.pt'
+                    torch.save(checkpoint, os.path.join(fold_path, model_save_name))
                     print("New Model Saved")
                     
         # wandb.finish() -> re-initialize after fold ends
@@ -159,6 +162,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--pretrained', type=str, default='regnetx_016', help='pretrained model selection')
+    parser.add_argument('--separate', type=str, default=None, help='BC or LT')
     parser.add_argument('--lr', type=float, default=2e-5, help='initial learning rate')
     parser.add_argument('--epochs', type=int, default=30, help="num epochs for training")
     parser.add_argument('--batch_size', type=int, default=64, help="batch size")
