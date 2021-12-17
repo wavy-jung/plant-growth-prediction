@@ -91,7 +91,7 @@ class KistDataset(Dataset):
             A.Resize(224, 224),
             A.OneOf([A.HorizontalFlip(p=1),
                      A.RandomRotate90(p=1),
-                     A.VerticalFlip(p=1)            
+                     A.VerticalFlip(p=1),   
             ], p=self.rand_aug_factor),
             A.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
             ToTensorV2(),
