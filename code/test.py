@@ -27,7 +27,7 @@ def inference(model, test_data_loader, device, idx):
 
     torch_label = torch.FloatTensor(test_value)
     np_label = torch_label.numpy()
-
+    np_label[np.where(np_label<1)] = 1
     return np_label
 
 
@@ -92,8 +92,6 @@ def main(args):
         model.load_state_dict(checkpoint['model'])
         model = model.to(device)
         mean_labels = inference(model, test_data_loader, device, "single")
-
-    mean_labels[np.where(mean_labels<1)] = 1
 
     if args.label_type.lower() == "int":
         label = [round(n) for n in mean_labels]
