@@ -14,7 +14,7 @@ class ImageModel(nn.Module):
     def __init__(
         self,
         dim_embedding=8,
-        pretrained='regnetx_016'
+        pretrained='regnetx_032'
         ):
         super(ImageModel, self).__init__()
         self.pretrained = timm.create_model(pretrained, pretrained=True, num_classes=dim_embedding)
@@ -32,7 +32,7 @@ class CompareNet(nn.Module):
     def __init__(
         self,
         dim_embedding=8,
-        model_name='regnetx_016'
+        model_name='regnetx_032'
         ):
         super(CompareNet, self).__init__()
         self.before_net = ImageModel(dim_embedding=dim_embedding, pretrained=model_name)
