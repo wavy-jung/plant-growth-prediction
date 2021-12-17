@@ -51,7 +51,7 @@ def main(args):
     dataset = pd.read_csv("./train_dataset.csv")
     if args.separate:
         assert args.separate.lower() in ["bc", "lt"], "Wrong Plant Name"
-        dataset.loc[dataset.species == args.separate.lower()]
+        dataset = dataset.loc[dataset.species == args.separate.lower()]
         print(f"Plant Species : {args.separate.upper()}")
     print(f"Length of Total Data : {len(dataset)}")
 
@@ -168,4 +168,5 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=64, help="batch size")
     parser.add_argument('--seed', type=int, default=2048, help="set random seed")
     args = parser.parse_args()
+    print(args)
     main(args)
