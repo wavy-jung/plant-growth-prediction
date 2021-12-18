@@ -18,7 +18,7 @@ Private MAELoss : 5.38558
 |   |-- dataloader.py
 |   |-- exp_notebooks
 |   |   |-- EDA.ipynb
-|   |   |-- exp.ipynb
+|   |   └-- exp.ipynb
 |   |-- mix_csv.py
 |   |-- model.py
 |   |-- test.py
@@ -26,14 +26,14 @@ Private MAELoss : 5.38558
 |   |-- train.py
 |   |-- train.sh
 |   |-- train_dataset.csv
-|   |-- wandb
-|-- data
+|   └-- wandb
+└-- data
     |-- sample_submission.csv
     |-- test_dataset
     |   |-- BC
     |   |-- LT
-    |   |-- test_data.csv
-    |-- train_dataset
+    |   └-- test_data.csv
+    └-- train_dataset
         |-- BC
-        |-- LT
+        └-- LT
 ```
