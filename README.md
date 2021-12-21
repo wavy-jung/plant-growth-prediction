@@ -21,7 +21,9 @@ Private MAELoss : 5.38558
 
 
 ## Modeling
-한 쌍의 이미지를 각각 다른 모델 입력으로 넣어 임베딩을 각각 생성하고 이를 이어 붙여 linear 연산을 수행하는 방식  
+한 쌍의 이미지를 각각 다른 모델 입력으로 넣어 임베딩을 각각 생성하고 이를 이어 붙여 linear 연산을 수행하는 방식
+
+
 <img width="500" alt="Screen Shot 2021-12-22 at 1 22 56 AM" src="https://user-images.githubusercontent.com/80743307/146963914-317c06db-8f4b-4130-a7a6-794befe2382e.png">
 
 
