@@ -12,6 +12,8 @@ Page Link : https://dacon.io/competitions/official/235851/overview/description
 ## Results
 Rank : 10 / 97 (Single Competitor)  
 Private MAELoss : 5.38558  
+<img width="1188" alt="Screen Shot 2021-12-22 at 1 08 54 AM" src="https://user-images.githubusercontent.com/80743307/146962249-1a943c5a-e3fb-4151-bc78-e09e5f18110e.png">
+
 
 
 
