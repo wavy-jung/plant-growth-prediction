@@ -34,4 +34,12 @@ WandB Link : https://wandb.ai/doohae/plant-growth?workspace=user-doohae
 <img width="1000" alt="image" src="https://user-images.githubusercontent.com/80743307/146965369-7b87e51b-5fa4-4272-8843-c4ea9185868e.png">
 
 
+## What was good?
+- 초기에 wandb 세팅을 하여 실험을 관리하기 매우 편하였음
+- 베이스라인을 수정하기 쉽도록 모듈화하여 기능별 코드 관리가 용이하였음
 
+
+## What to improve?
+- 다른 프로젝트와의 병행으로 시간을 많이 투자할 수 없어서 여러 대조실험을 진행하지 못하였음
+- 이전 프로젝트에서 모델의 performance 향상을 많이 이끌어냈던 data augmentation 작업을 기초적인 수준만 적용하였음
+- 모델링에서 두 모델을 이어주는 CompareNet으로 RNN, CNN 등을 구상하였으나 적용하지 못하였음
