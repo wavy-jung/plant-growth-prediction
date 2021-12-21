@@ -18,7 +18,4 @@ Private MAELoss : 5.38558
 
 
 ## Modeling
-![plant_model](https://user-images.githubusercontent.com/80743307/146963549-570c9c92-5264-4f65-b948-7a07b63091f4.png)
-
-
-
+<img width="649" alt="Screen Shot 2021-12-22 at 1 22 56 AM" src="https://user-images.githubusercontent.com/80743307/146963914-317c06db-8f4b-4130-a7a6-794befe2382e.png">
