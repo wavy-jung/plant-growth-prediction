@@ -31,7 +31,7 @@ Private MAELoss : 5.38558
 WandB Link : https://wandb.ai/doohae/plant-growth?workspace=user-doohae
 
 
-<img width="1345" alt="image" src="https://user-images.githubusercontent.com/80743307/146965369-7b87e51b-5fa4-4272-8843-c4ea9185868e.png">
+<img width="1000" alt="image" src="https://user-images.githubusercontent.com/80743307/146965369-7b87e51b-5fa4-4272-8843-c4ea9185868e.png">
 
 
 
