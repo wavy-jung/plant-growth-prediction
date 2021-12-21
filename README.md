@@ -17,6 +17,8 @@ Private MAELoss : 5.38558
 
 
 
-#
+## Modeling
+![plant_model](https://user-images.githubusercontent.com/80743307/146963549-570c9c92-5264-4f65-b948-7a07b63091f4.png)
+
 
 
