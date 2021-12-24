@@ -8,6 +8,5 @@
 *.pt
 *.png
 *.csv
-*.sh
 !.gitignore
 *.ipynb_checkpoints
